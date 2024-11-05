@@ -9,7 +9,6 @@ export default function MatchingPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Simulate matching delay
     const timer = setTimeout(() => {
       router.push("/chat/room");
     }, 3000);
@@ -23,9 +22,9 @@ export default function MatchingPage() {
         <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
         <h1 className="text-2xl font-bold">Finding Your Support Group</h1>
         <p className="text-muted-foreground">
-          We're matching you with people who share similar experiences...
+          We&apos;re matching you with people who share similar experiences...
         </p>
-        <Progress value={33} className="h-2" />
+        {/* <Progress value={33} className="h-2" /> */}
       </div>
     </main>
   );

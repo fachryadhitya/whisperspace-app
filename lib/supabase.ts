@@ -1,15 +1,30 @@
-import { createClient } from '@supabase/supabase-js';
+"use client";
 
-const supabaseUrl = 'https://ziluswablqfttsjunawa.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppbHVzd2FibHFmdHRzanVuYXdhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMDc4ODI3NSwiZXhwIjoyMDQ2MzY0Mjc1fQ.tYqRLFhYjEPs1FW9brkzFvbmhLgYcKDbE1iIx59AJFI'
+import { createClient } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_ANON_KEY!;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export type Message = {
+// Generate a unique anonymous ID for the user
+export const getAnonymousId = () => {  
+  let anonymousId = window.localStorage.getItem('anonymousId');
+  if (!anonymousId) {
+    anonymousId = uuidv4();
+    window.localStorage.setItem('anonymousId', anonymousId);
+  }
+  return anonymousId;
+};
+
+export interface Message {
   id: string;
   created_at: string;
   content: string;
   room_id: string;
   user_id: string;
   sender_name: string;
-};
+  category: string;
+  status: 'sending' | 'sent' | 'delivered' | 'error';
+}

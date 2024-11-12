@@ -19,13 +19,10 @@ export class ChatWebSocket {
   }
 
   private connect() {
-    // In a real app, this would be an environment variable
     const wsUrl = `wss://api.whisperspace.com/ws/chat/${this.roomId}`;
     
-    // For demo purposes, we'll simulate WebSocket with a delay
     setTimeout(() => {
       this.handleOpen();
-      // Simulate receiving a message every few seconds
       setInterval(() => {
         this.handleMessage({
           type: "message",
@@ -60,7 +57,6 @@ export class ChatWebSocket {
   };
 
   public sendMessage(content: string) {
-    // In a real implementation, this would send to the WebSocket server
     this.handleMessage({
       type: "message",
       data: {

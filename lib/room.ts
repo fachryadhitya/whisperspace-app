@@ -69,6 +69,7 @@ export async function getUserRooms(userId: string): Promise<ChatRoom[]> {
 
   if (error) throw error;
 
+  // @ts-ignore
   return data.map(item => ({
     ...item.rooms,
     active: item.active,

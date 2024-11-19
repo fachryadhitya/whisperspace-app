@@ -11,6 +11,9 @@ import { supabase } from "@/lib/supabase";
 import { ChatRoom } from "@/lib/types";
 import { leaveRoom } from "@/lib/room";
 import { getAnonymousId } from "@/lib/supabase";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ChatContainerProps {
   roomId: string;
@@ -18,6 +21,7 @@ interface ChatContainerProps {
 
 export function ChatContainer({ roomId }: ChatContainerProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [room, setRoom] = useState<ChatRoom | null>(null);
   const { 
     messages, 
@@ -29,15 +33,16 @@ export function ChatContainer({ roomId }: ChatContainerProps) {
     disconnect
   } = useChat(roomId);
 
+
   useEffect(() => {
     async function loadRoom() {
-      const { data, error } = await supabase
+      const { data: roomData, error: roomError } = await supabase
         .from('rooms')
         .select('*')
         .eq('id', roomId)
         .single();
 
-      if (error) {
+      if (roomError) {
         toast({
           title: "Error",
           description: "Failed to load room details",
@@ -46,7 +51,29 @@ export function ChatContainer({ roomId }: ChatContainerProps) {
         return;
       }
 
-      setRoom(data);
+      // Check if user is still active in this room
+      const { data: userRoomData, error: userRoomError } = await supabase
+        .from('user_rooms')
+        .select('active')
+        .eq('room_id', roomId)
+        .eq('user_id', getAnonymousId())
+        .single();
+
+      if (userRoomError) {
+        toast({
+          title: "Error",
+          description: "You are not authorized to view this room",
+          variant: "destructive",
+        });
+
+        router.push('/rooms');
+        return;
+      }
+
+      setRoom({
+        ...roomData,
+        active: userRoomData.active,
+      });
     }
 
     loadRoom();
@@ -55,6 +82,7 @@ export function ChatContainer({ roomId }: ChatContainerProps) {
   const handleLeaveRoom = async () => {
     try {
       await leaveRoom(getAnonymousId(), roomId);
+      setRoom(prev => prev ? { ...prev, active: false } : null);
       disconnect();
       toast({
         title: "Left Room",
@@ -82,7 +110,16 @@ export function ChatContainer({ roomId }: ChatContainerProps) {
           roomId={roomId}
           roomName={room.name}
           onLeaveRoom={handleLeaveRoom}
+          isAnActiveRoom={room.active || false}
         />
+        {!room.active && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              You have left this room. You can view the chat history but cannot send new messages.
+            </AlertDescription>
+          </Alert>
+        )}
         <ChatMessages 
           messages={messages} 
           typingUsers={typingUsers}
@@ -90,7 +127,7 @@ export function ChatContainer({ roomId }: ChatContainerProps) {
         <ChatInput 
           onSendMessage={sendMessage} 
           onTyping={handleTyping}
-          disabled={!isConnected} 
+          disabled={!isConnected || !room.active} 
         />
       </Card>
     </div>

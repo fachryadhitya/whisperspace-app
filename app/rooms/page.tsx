@@ -7,13 +7,14 @@ import { getAnonymousId } from "@/lib/supabase";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
-import { Users, Calendar } from "lucide-react";
+import { Users, Calendar, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { createRoom } from "@/lib/room";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 export default function RoomsPage() {
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
@@ -41,10 +42,10 @@ export default function RoomsPage() {
   const handleCreateRoom = async () => {
     if (!userPreferences?.supportCategory) {
       toast({
-        title: "Error",
-        description: "Please complete your preferences first",
-        variant: "destructive",
+        title: "Complete Your Preferences",
+        description: "You'll be redirected to set your preferences before joining a room.",
       });
+      router.push('/join');
       return;
     }
 
@@ -83,7 +84,15 @@ export default function RoomsPage() {
               <Link key={room.id} href={`/chat/${room.id}`}>
                 <Card className="hover:bg-muted/50 transition-colors">
                   <CardHeader>
-                    <CardTitle>{room.name}</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{room.name}</CardTitle>
+                      {!room.active && (
+                        <Badge variant="secondary" className="ml-2">
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                          Left Room
+                        </Badge>
+                      )}
+                    </div>
                     <CardDescription>{room.description}</CardDescription>
                   </CardHeader>
                   <CardContent>

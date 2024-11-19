@@ -33,6 +33,7 @@ export async function joinRoom(userId: string, roomId: string): Promise<void> {
       room_id: roomId,
       joined_at: new Date().toISOString(),
       last_read_at: new Date().toISOString(),
+      active: true,
     });
 
   if (joinError) throw joinError;
@@ -50,6 +51,7 @@ export async function getUserRooms(userId: string): Promise<ChatRoom[]> {
     .from('user_rooms')
     .select(`
       room_id,
+      active,
       rooms:room_id (
         id,
         name,
@@ -67,13 +69,16 @@ export async function getUserRooms(userId: string): Promise<ChatRoom[]> {
 
   if (error) throw error;
 
-  return data.map(item => item.rooms);
+  return data.map(item => ({
+    ...item.rooms,
+    active: item.active,
+  }));
 }
 
 export async function leaveRoom(userId: string, roomId: string): Promise<void> {
   const { error: leaveError } = await supabase
     .from('user_rooms')
-    .delete()
+    .update({ active: false, left_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('room_id', roomId);
 

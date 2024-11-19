@@ -26,6 +26,7 @@ export interface ChatRoom {
   is_private: boolean;
   last_message_at: string | null;
   participant_count: number;
+  active?: boolean;
 }
 
 export interface UserRoom {
@@ -33,4 +34,6 @@ export interface UserRoom {
   room_id: string;
   joined_at: string;
   last_read_at: string;
+  active: boolean;
+  left_at?: string;
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import { MessageCircle, Wifi, WifiOff, Users, LogOut } from "lucide-react";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipTrigger 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
   AlertDialog,
@@ -27,9 +27,17 @@ interface ChatHeaderProps {
   roomId: string;
   roomName: string;
   onLeaveRoom: () => void;
+  isAnActiveRoom: boolean;
 }
 
-export function ChatHeader({ participantCount, isConnected, roomId, roomName, onLeaveRoom }: ChatHeaderProps) {
+export function ChatHeader({
+  participantCount,
+  isConnected,
+  roomId,
+  roomName,
+  onLeaveRoom,
+  isAnActiveRoom,
+}: ChatHeaderProps) {
   const router = useRouter();
 
   const handleLeaveRoom = () => {
@@ -43,7 +51,9 @@ export function ChatHeader({ participantCount, isConnected, roomId, roomName, on
       <h1 className="text-lg font-semibold">{roomName}</h1>
       <div className="ml-auto flex items-center gap-3">
         <Link href="/rooms">
-          <Button variant="ghost" size="sm">View All Rooms</Button>
+          <Button variant="ghost" size="sm">
+            View All Rooms
+          </Button>
         </Link>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -72,27 +82,37 @@ export function ChatHeader({ participantCount, isConnected, roomId, roomName, on
             <p>{isConnected ? "Connected" : "Disconnected"}</p>
           </TooltipContent>
         </Tooltip>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Leave Room</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to leave this support room? You can always join another room later.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleLeaveRoom} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Leave Room
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {isAnActiveRoom && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Leave Room</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to leave this support room? You can
+                  always join another room later.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLeaveRoom}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Leave Room
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     </div>
   );
